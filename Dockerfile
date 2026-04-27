@@ -1,7 +1,16 @@
 # Base for builder
-FROM debian:stable-20250520-slim AS builder
+FROM debian:bookworm-slim AS builder
+
 # Deps for builder
-RUN apt-get update && apt-get install --no-install-recommends -y ca-certificates ldc git clang dub libz-dev libssl-dev libplist-dev libplist-2.0-4 \
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    ca-certificates \
+    ldc \
+    git \
+    clang \
+    dub \
+    libz-dev \
+    libssl-dev \
+    libplist-dev \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
@@ -11,8 +20,13 @@ COPY . .
 RUN DC=ldc2 dub build -c "static" --build-mode allAtOnce -b release --compiler=ldc2
 
 # Base for run
-FROM debian:stable-slim
-RUN apt-get update && apt-get install --no-install-recommends -y ca-certificates curl libplist-dev libplist-2.0-4\
+FROM debian:bookworm-slim
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    ca-certificates \
+    curl \
+    libplist-2.0-4 \
+    libssl3 \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
@@ -25,13 +39,13 @@ RUN mkdir -p /opt/anisette-v3/provisioning
 
 # Setup rootless user which works with the volume mount
 RUN useradd -ms /bin/bash Alcoholic \
- && mkdir /home/Alcoholic/.config/anisette-v3/lib/ -p \
+ && mkdir -p /home/Alcoholic/.config/anisette-v3/lib/ \
  && chown -R Alcoholic /home/Alcoholic/ \
- && chmod -R +wx /home/Alcoholic/ \
+ && chmod -R u+rwX /home/Alcoholic/ \
  && chown -R Alcoholic /opt/ \
- && chmod -R +wx /opt/
+ && chmod -R u+rwX /opt/
 
 # Run the artefact
 USER Alcoholic
 EXPOSE 6969
-ENTRYPOINT [ "/opt/anisette-v3-server" ]
+ENTRYPOINT ["/opt/anisette-v3-server"]
