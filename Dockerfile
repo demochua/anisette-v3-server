@@ -25,7 +25,7 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install --no-install-recommends -y \
     ca-certificates \
     curl \
-    libplist-2.0-4 \
+    libplist3\
     libssl3 \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
